@@ -32,7 +32,7 @@ search_agent = Agent(
     name='search_agent',
     model='gemini-2.0-flash',
     instruction=(
-        "You're a specialist in Google Search"
+        "You're a specialist in Google Search."
     ),
     tools=[
         google_search

@@ -1,16 +1,27 @@
+from tracemalloc import start
+from typing import Any, Optional
+
 from google.adk import Agent
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
-from google.genai import types
+from google.genai.types import Content, Part, FunctionCall, FunctionResponse
 
 APP_NAME="my_agent"
 USER_ID="user"
 SESSION_ID="1234"
 
 # Session and Runner
-async def setup_session_and_runner(agent: Agent):
+async def setup_session_and_runner(
+    agent: Agent,
+    state: Optional[dict[str, Any]] = None,
+):
     session_service = InMemorySessionService()
-    session = await session_service.create_session(app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID)
+    session = await session_service.create_session(
+        app_name=APP_NAME,
+        user_id=USER_ID,
+        state=state,
+        session_id=SESSION_ID,
+    )
     runner = Runner(agent=agent, app_name=APP_NAME, session_service=session_service)
     return session, runner
 
@@ -20,42 +31,49 @@ async def call_agent_async(
     agent: Agent, 
     query: str,
     *,
-    tool_calls: bool = True,
+    tool_calls: bool = False,
     tool_call_results: bool = False,
+    state: Optional[dict[str, Any]] = None
 ):
-    content = types.Content(
+    content = Content(
         role='user', 
-        parts=[types.Part(text=query)]
+        parts=[Part(text=query)]
     )
-    _, runner = await setup_session_and_runner(agent)
+    _, runner = await setup_session_and_runner(agent, state=state)
     events = runner.run_async(user_id=USER_ID, session_id=SESSION_ID, new_message=content)
 
     async for event in events:
-        if tool_calls:
-            handle_tool_calls(event)
-        if tool_call_results:
-            handle_tool_responses(event)
-        
+        print(f"\n[{event.author.upper()}] ", end="")
         if event.is_final_response():
             final_response = event.content.parts[0].text
-            print("Agent Response: ", final_response)
+            print(f"{final_response}\n")
 
-def handle_tool_calls(event):
-    calls = event.get_function_calls()
-    if calls:
-        for call in calls:
-            tool_name = call.name
-            arguments = call.args  # This is usually a dictionary
-            print(f"  Tool: {tool_name}, Args: {arguments}")
-    else:
-        print("No tool calls found.")
+        if tool_calls:
+            function_calls = event.get_function_calls()
+            if function_calls:
+                handle_tool_calls(function_calls)
+        if tool_call_results:
+            function_responses = event.get_function_responses()
+            if function_responses:
+                handle_tool_responses(function_responses)
 
-def handle_tool_responses(event):
-    responses = event.get_function_responses()
-    if responses:
-        for response in responses:
-            tool_name = response.name
-            result_dict = response.response  # The dictionary returned by the tool
-            print(f"  Tool Result: {tool_name} -> {result_dict}")
-    else:
-        print("No tool responses found.")
+def handle_tool_calls(function_calls: list[FunctionCall]):
+    for call in function_calls:
+        tool_name = call.name
+        arguments = call.args  # This is usually a dictionary
+        print(f"  Tool: {tool_name}, Args: {arguments}")
+    print("")
+
+def handle_tool_responses(function_responses: list[FunctionResponse]):
+    for response in function_responses:
+        tool_name = response.name
+        result_dict = response.response  # The dictionary returned by the tool
+        print(f"  Tool Result: {tool_name} -> {result_dict}")
+    print("")
+
+def print_new_section(title: str):
+    print(
+        "\n" + "-" * 65 + "\n"
+        + " " * 15 + title + " " * 15
+        + "\n" + "-" * 65 + "\n"
+    )
