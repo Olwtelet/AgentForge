@@ -19,12 +19,12 @@ async def main():
 
     # define the LLMs
     Settings.llm = OpenAI(
-        model=settings.openai_model_name, 
-        api_key=settings.openai_api_key.get_secret_value()
+        model=settings.OPENAI_MODEL_NAME, 
+        api_key=settings.OPENAI_API_KEY.get_secret_value()
     )
     Settings.embed_model = OpenAIEmbedding(
-        model=settings.embeddings_model_name,
-        api_key=settings.openai_api_key.get_secret_value()
+        model=settings.OPENAI_EMBEDDINGS_MODEL,
+        api_key=settings.OPENAI_API_KEY.get_secret_value()
     )
 
 

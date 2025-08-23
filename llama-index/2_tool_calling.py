@@ -13,7 +13,7 @@ from settings import settings
 
 async def main():
     # load documents
-    documents = SimpleDirectoryReader(input_files=["docs/metagpt.pdf"]).load_data()
+    documents = SimpleDirectoryReader(input_files=["res/metagpt.pdf"]).load_data()
 
     # split the documents into nodes
     splitter = SentenceSplitter(chunk_size=1024)
@@ -21,12 +21,12 @@ async def main():
 
     # define the LLMs
     Settings.llm = OpenAI(
-        model=settings.openai_model_name, 
-        api_key=settings.openai_api_key.get_secret_value()
+        model=settings.OPENAI_MODEL_NAME, 
+        api_key=settings.OPENAI_API_KEY.get_secret_value()
     )
     Settings.embed_model = OpenAIEmbedding(
-        model=settings.embeddings_model_name,
-        api_key=settings.openai_api_key.get_secret_value()
+        model=settings.OPENAI_EMBEDDINGS_MODEL,
+        api_key=settings.OPENAI_API_KEY.get_secret_value()
     )
 
     # ----------------------------------------
@@ -93,7 +93,7 @@ async def main():
     for n in response.source_nodes:
         print(n.metadata) 
     """
-    {'page_label': '2', 'file_name': 'metagpt.pdf', 'file_path': 'docs/metagpt.pdf', 'file_type': 'application/pdf', 
+    {'page_label': '2', 'file_name': 'metagpt.pdf', 'file_path': 'res/metagpt.pdf', 'file_type': 'application/pdf', 
     'file_size': 16911937, 'creation_date': '2025-02-14', 'last_modified_date': '2025-02-14'}
     """
     print("-"*50)

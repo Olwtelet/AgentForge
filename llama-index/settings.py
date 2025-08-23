@@ -3,9 +3,9 @@ from pydantic_settings import BaseSettings
 
 # Use pydantic base settings for basic settings read from a .env file
 class Settings(BaseSettings):
-    openai_api_key: pydantic.SecretStr 
-    openai_model_name: str = "gpt-4o-mini"
-    embeddings_model_name: str = "text-embedding-ada-002"
+    OPENAI_API_KEY: pydantic.SecretStr 
+    OPENAI_MODEL_NAME: str = "gpt-4o-mini"
+    OPENAI_EMBEDDINGS_MODEL: str = "text-embedding-ada-002"
 
     class Config:
         env_file = ".env"

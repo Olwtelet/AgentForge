@@ -1,24 +1,34 @@
-# llama-index
+# Llama Index
 
-First, create a python virtual environment with:
+- Repo: https://github.com/run-llama/llama_index
+- Documentation: https://docs.llamaindex.ai/en/stable/
+
+## Llama Index Examples
+
+### How to setup
+
+#### Virtual environment
+
+Create a simple virtual environment with:
 
 ```bash
 python3 -m venv .venv
 ```
 
-Then, activate the virtual environment with:
-
+Then activate it with:
 ```bash
+# On Linux/macOS
 source .venv/bin/activate
+# On Windows
+.venv\Scripts\activate
 ```
 
-Install the dependencies with:
-
+And install the requirements with:
 ```bash
-pip install -r requirements.txt 
+pip install -r requirements.txt
 ```
 
-Create a `.env` file in the root of the project based on the `.env.example` file.
+#### .env
 
-
-Now, you can run the examples by running each file.
+See .env.example and create a .env (on the root of the repository).
+You need to get an open AI endpoint and key and fill them in.
