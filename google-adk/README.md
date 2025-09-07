@@ -55,5 +55,5 @@ to this [link](https://console.developers.google.com/apis/api/generativelanguage
 To run the examples, you should go to `google_adk` directory and run:
 
 ```bash
-adk run <folder_name>
+python3 <file_name>.py
 ```
