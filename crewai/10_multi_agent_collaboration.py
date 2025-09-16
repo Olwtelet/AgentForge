@@ -19,8 +19,6 @@ Their given 2 powerful tools to facilitate collaboration:
 1. Delegate Work tool
 2. Ask Question tool
 
-
-
 To learn more, visit:
 https://docs.crewai.com/en/concepts/collaboration
 -------------------------------------------------------

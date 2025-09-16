@@ -26,7 +26,7 @@ chromadb==0.5.23
 click==8.2.1
 cohere==5.17.0
 coloredlogs==15.0.1
-crewai==0.177.0
+crewai==0.186.0
 crewai-tools==0.69.0
 cryptography==45.0.7
 dataclasses-json==0.6.7
@@ -233,7 +233,7 @@ tabulate==0.9.0
 tenacity==9.1.2
 tifffile==2025.5.10
 tiktoken==0.11.0
-tokenizers==0.22.0
+tokenizers==0.20.3
 tomli==2.2.1
 tomli_w==1.2.0
 torch==2.8.0
