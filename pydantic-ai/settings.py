@@ -1,15 +1,13 @@
 import pydantic
 from pydantic_settings import BaseSettings
 
-
 # Use pydantic base settings for basic settings read from a .env file
 class Settings(BaseSettings):
-    openai_api_key: pydantic.SecretStr
-    openai_model_name: str = "gpt-4o-mini"
+    OPENAI_API_KEY: pydantic.SecretStr
+    OPENAI_MODEL_NAME: str = "gpt-4o"
 
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
 
-
-settings: Settings = Settings()
+settings: Settings = Settings() 
