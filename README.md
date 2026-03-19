@@ -1,9 +1,6 @@
 <a id="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
-<!--
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
 
 <!-- PROJECT LOGO -->
 <br />
@@ -13,10 +10,10 @@
     <img src="./res/banner.png" alt="Logo">
   </a>
 
-  <h1 align="center">🤖 AI Agent Frameworks</h1>
+  <h1 align="center">🤖 AgentForge</h1>
 
   <p align="center">
-    A hands-on comparison of modern AI agent and multi-agent frameworks. Get started with practical examples and explore the unique features of each framework.
+    A hands-on, production-focused comparison of modern AI agent and multi-agent frameworks. Explore real-world implementations and evaluate trade-offs across leading tools.
     <br />
     <a href="./issues/new?labels=bug&template=bug-report.md">Report Bug</a>
     ·
@@ -24,7 +21,7 @@
   </p>
 </div>
 
-This repository provides a comprehensive, hands-on comparison of modern AI agent and multi-agent frameworks. Each framework is explored through practical examples, highlighting its unique features, capabilities, and use cases.
+AgentForge delivers a structured, hands-on comparison of modern AI agent and multi-agent frameworks. Each framework is explored through implementation-driven examples, highlighting architecture patterns, capabilities, and real-world use cases.
 
 ## 🤖 Frameworks Included
 
@@ -47,20 +44,12 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
       </td>
       <td>
           <a href="https://docs.ag2.ai/latest/">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/book-open-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/book-open.svg">
-              <img src="res/book-open.svg" alt="Docs" width="20">
-            </picture>
+            <img src="res/book-open.svg" alt="Docs" width="20">
           </a>
       </td>
       <td>
           <a href="https://github.com/ag2ai/ag2">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/github-icon-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/github-icon.svg">
-              <img src="res/github-icon.svg" alt="GitHub" width="20">
-            </picture>
+            <img src="res/github-icon.svg" alt="GitHub" width="20">
           </a>
       </td>
     </tr>
@@ -74,260 +63,149 @@ This repository provides a comprehensive, hands-on comparison of modern AI agent
       </td>
       <td>
           <a href="https://docs.agno.com/introduction">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/book-open-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/book-open.svg">
-              <img src="res/book-open.svg" alt="Docs" width="20">
-            </picture>
+            <img src="res/book-open.svg" alt="Docs" width="20">
           </a>
       </td>
       <td>
           <a href="https://github.com/agno-agi/agno">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/github-icon-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/github-icon.svg">
-              <img src="res/github-icon.svg" alt="GitHub" width="20">
-            </picture>
+            <img src="res/github-icon.svg" alt="GitHub" width="20">
           </a>
       </td>
     </tr>
     <tr>
       <td style="vertical-align: middle;">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="res/microsoft-dark.svg">
-          <source media="(prefers-color-scheme: light)" srcset="res/microsoft.svg">
-          <img src="res/microsoft.svg" alt="Autogen" width="30" style="vertical-align: middle;">
-        </picture>
-    <strong style="vertical-align: middle; font-size: 1.2em;">Autogen</strong>
+        <img src="res/microsoft.svg" alt="Autogen" width="30">
+        <strong style="font-size: 1.2em;">Autogen</strong>
       </td>
       <td>
           <a href="https://microsoft.github.io/autogen/stable/index.html">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/book-open-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/book-open.svg">
-              <img src="res/book-open.svg" alt="Docs" width="20">
-            </picture>
+            <img src="res/book-open.svg" alt="Docs" width="20">
           </a>
       </td>
       <td>
           <a href="https://github.com/microsoft/autogen">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/github-icon-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/github-icon.svg">
-              <img src="res/github-icon.svg" alt="GitHub" width="20">
-            </picture>
+            <img src="res/github-icon.svg" alt="GitHub" width="20">
           </a>
       </td>
     </tr>
     <tr>
       <td>
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="res/crewai-dark.svg">
-          <source media="(prefers-color-scheme: light)" srcset="res/crewai.svg">
-          <img src="res/crewai.svg" alt="CrewAI" width="72">
-        </picture>
+        <img src="res/crewai.svg" alt="CrewAI" width="72">
       </td>
       <td>
           <a href="https://docs.crewai.com/">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/book-open-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/book-open.svg">
-              <img src="res/book-open.svg" alt="Docs" width="20">
-            </picture>
+            <img src="res/book-open.svg" alt="Docs" width="20">
           </a>
       </td>
       <td>
           <a href="https://github.com/crewAIInc/crewAI">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/github-icon-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/github-icon.svg">
-              <img src="res/github-icon.svg" alt="GitHub" width="20">
-            </picture>
+            <img src="res/github-icon.svg" alt="GitHub" width="20">
           </a>
       </td>
     </tr>
     <tr>
       <td style="vertical-align: middle;">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="res/google-adk-dark.svg">
-          <source media="(prefers-color-scheme: light)" srcset="res/google-adk.svg">
-          <img src="res/google-adk.svg" alt="Google ADK" width="28" style="vertical-align: middle;">
-        </picture>
-    <strong style="vertical-align: middle; font-size: 1.2em;">Google ADK</strong>
+        <img src="res/google-adk.svg" alt="Google ADK" width="28">
+        <strong style="font-size: 1.2em;">Google ADK</strong>
       </td>
       <td>
           <a href="https://google.github.io/adk-docs/">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/book-open-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/book-open.svg">
-              <img src="res/book-open.svg" alt="Docs" width="20">
-            </picture>
+            <img src="res/book-open.svg" alt="Docs" width="20">
           </a>
       </td>
       <td>
           <a href="https://github.com/google/adk-python">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/github-icon-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/github-icon.svg">
-              <img src="res/github-icon.svg" alt="GitHub" width="20">
-            </picture>
+            <img src="res/github-icon.svg" alt="GitHub" width="20">
           </a>
       </td>
     </tr>
     <tr>
       <td style="vertical-align: middle;">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="res/langgraph-dark.svg">
-          <source media="(prefers-color-scheme: light)" srcset="res/langgraph.svg">
-          <img src="res/langgraph.svg" alt="LangGraph" width="30" style="vertical-align: middle;">
-        </picture>
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="res/langgraph-text-dark.svg">
-          <source media="(prefers-color-scheme: light)" srcset="res/langgraph-text.svg">
-          <img src="res/langgraph-text.svg" alt="LangGraph" width="100" style="vertical-align: middle;">
-        </picture>
+        <img src="res/langgraph.svg" alt="LangGraph" width="30">
+        <img src="res/langgraph-text.svg" alt="LangGraph" width="100">
       </td>
       <td>
           <a href="https://langchain-ai.github.io/langgraph/">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/book-open-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/book-open.svg">
-              <img src="res/book-open.svg" alt="Docs" width="20">
-            </picture>
+            <img src="res/book-open.svg" alt="Docs" width="20">
           </a>
       </td>
       <td>
           <a href="https://github.com/langchain-ai/langgraph">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/github-icon-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/github-icon.svg">
-              <img src="res/github-icon.svg" alt="GitHub" width="20">
-            </picture>
+            <img src="res/github-icon.svg" alt="GitHub" width="20">
           </a>
       </td>
     </tr>
     <tr>
       <td style="vertical-align: middle;">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="res/llamaindex-dark.svg">
-          <source media="(prefers-color-scheme: light)" srcset="res/llama-index.svg">
-          <img src="res/llama-index.svg" alt="LlamaIndex" width="28" style="vertical-align: middle;">
-        </picture>
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="res/llamaindex-text-dark.svg">
-          <source media="(prefers-color-scheme: light)" srcset="res/llamaindex-text.svg">
-          <img src="res/llamaindex-text.svg" alt="LlamaIndex" width="110" style="vertical-align: middle;">
-        </picture>
+        <img src="res/llama-index.svg" alt="LlamaIndex" width="28">
+        <img src="res/llamaindex-text.svg" alt="LlamaIndex" width="110">
       </td>
       <td>
           <a href="https://docs.llamaindex.ai/en/stable/">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/book-open-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/book-open.svg">
-              <img src="res/book-open.svg" alt="Docs" width="20">
-            </picture>
+            <img src="res/book-open.svg" alt="Docs" width="20">
           </a>
       </td>
       <td>
           <a href="https://github.com/run-llama/llama_index">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/github-icon-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/github-icon.svg">
-              <img src="res/github-icon.svg" alt="GitHub" width="20">
-            </picture>
+            <img src="res/github-icon.svg" alt="GitHub" width="20">
           </a>
       </td>
     </tr>
     <tr>
       <td style="vertical-align: middle;">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="res/openai-dark.svg">
-          <source media="(prefers-color-scheme: light)" srcset="res/openai.svg">
-          <img src="res/openai.svg" alt="OpenAI Agents SDK" width="30" style="vertical-align: middle;">
-        </picture>
-    <strong style="vertical-align: middle; font-size: 1.2em;">OpenAI Agents SDK</strong>
+        <img src="res/openai.svg" alt="OpenAI Agents SDK" width="30">
+        <strong style="font-size: 1.2em;">OpenAI Agents SDK</strong>
       </td>
       <td>
           <a href="https://openai.github.io/openai-agents-python/">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/book-open-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/book-open.svg">
-              <img src="res/book-open.svg" alt="Docs" width="20">
-            </picture>
+            <img src="res/book-open.svg" alt="Docs" width="20">
           </a>
       </td>
       <td>
           <a href="https://github.com/openai/openai-agents-python">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/github-icon-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/github-icon.svg">
-              <img src="res/github-icon.svg" alt="GitHub" width="20">
-            </picture>
+            <img src="res/github-icon.svg" alt="GitHub" width="20">
           </a>
       </td>
     </tr>
     <tr>
       <td style="vertical-align: middle;">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="res/pydantic-ai-dark.svg">
-          <source media="(prefers-color-scheme: light)" srcset="res/pydantic-ai.svg">
-          <img src="res/pydantic-ai.svg" alt="Pydantic-AI" width="120" style="vertical-align: middle;">
-        </picture>
+        <img src="res/pydantic-ai.svg" alt="Pydantic-AI" width="120">
       </td>
       <td>
           <a href="https://ai.pydantic.dev/">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/book-open-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/book-open.svg">
-              <img src="res/book-open.svg" alt="Docs" width="20">
-            </picture>
+            <img src="res/book-open.svg" alt="Docs" width="20">
           </a>
       </td>
       <td>
           <a href="https://github.com/pydantic/pydantic-ai">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/github-icon-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/github-icon.svg">
-              <img src="res/github-icon.svg" alt="GitHub" width="20">
-            </picture>
+            <img src="res/github-icon.svg" alt="GitHub" width="20">
           </a>
       </td>
     </tr>
     <tr>
       <td style="vertical-align: middle;">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="res/huggingface-dark.svg">
-          <source media="(prefers-color-scheme: light)" srcset="res/huggingface.svg">
-          <img src="res/huggingface.svg" alt="smolagents" width="28" style="vertical-align: middle;">
-        </picture>
-    <strong style="vertical-align: middle; font-size: 1.2em;">smolagents</strong>
+        <img src="res/huggingface.svg" alt="smolagents" width="28">
+        <strong style="font-size: 1.2em;">smolagents</strong>
       </td>
       <td>
           <a href="https://huggingface.co/docs/smolagents/en/index">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/book-open-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/book-open.svg">
-              <img src="res/book-open.svg" alt="Docs" width="20">
-            </picture>
+            <img src="res/book-open.svg" alt="Docs" width="20">
           </a>
       </td>
       <td>
           <a href="https://github.com/huggingface/smolagents">
-            <picture>
-              <source media="(prefers-color-scheme: dark)" srcset="res/github-icon-dark.svg">
-              <source media="(prefers-color-scheme: light)" srcset="res/github-icon.svg">
-              <img src="res/github-icon.svg" alt="GitHub" width="20">
-            </picture>
+            <img src="res/github-icon.svg" alt="GitHub" width="20">
           </a>
       </td>
     </tr>
   </tbody>
 </table>
 
-  
 ## 📁 Structure
 
-The repository is organized by framework, with each top-level folder containing examples, configuration, and a `README.md` for that framework. Examples range from simple agent tasks to advanced multi-agent workflows, RAG (Retrieval-Augmented Generation), API integration, and more.
+The repository is organized by framework. Each directory includes examples, configuration, and framework-specific documentation.
+
+Examples range from simple agent tasks to advanced multi-agent workflows, RAG (Retrieval-Augmented Generation), and API integrations.
 
 **Main modules:**
 - `ag2/`
@@ -342,33 +220,31 @@ The repository is organized by framework, with each top-level folder containing 
 - `smolagents/`
 - `study-agents-differences/`
 
-Some modules are standalone, while others are PDM projects or use `requirements.txt` for dependency management. Always check the `README.md` in each module for specific setup and usage instructions.
+Some modules use PDM (`pyproject.toml`), while others rely on `requirements.txt`. Always review the local `README.md` before setup.
 
 ## 🚀 Getting Started
 
-1. **Choose a framework**: Navigate to the relevant folder for the agent framework you want to explore.
-2. **Install dependencies**: See each module’s `README.md` for installation instructions.
-3. **Run examples**
+1. **Select a framework**  
+   Navigate to the corresponding directory.
+
+2. **Install dependencies**  
+   Follow the setup instructions in the module’s `README.md`.
+
+3. **Run examples**  
+   Execute scripts from basic agents to advanced multi-agent workflows.
 
 ---
 
 ## 🧪 Comparison and Experiments
 
-The `study-agents-differences/` folder contains comprehensive scripts and utilities for comparing frameworks on common tasks, including RAG, API integration, and multi-agent workflows. It provides:
-- Unified agent interfaces for Agno, LangGraph, LlamaIndex, OpenAI, and Pydantic-AI
-- Performance benchmarks measuring response time, token usage, and tool utilization  
-- Detailed results and analysis comparing different agent designs and tool integrations
-- Interactive Streamlit UI for real-time comparison (`streamlit run agent-ui.py`)
+The `study-agents-differences/` module centralizes benchmarking and cross-framework experimentation.
 
----
+**Key capabilities:**
+- Standardized agent interfaces across multiple frameworks  
+- Performance benchmarking (latency, token usage, tool efficiency)  
+- Comparative analysis of RAG pipelines, APIs, and multi-agent systems  
+- Interactive Streamlit UI for real-time evaluation  
 
-## 🤝 Contributing
-All contributions are welcome! If you have suggestions for new examples, frameworks to add, or improvements to existing content, please open an issue or submit a pull request.
-
---- 
-
-#### Notes
-
-- Some modules use PDM (`pyproject.toml`), others use `requirements.txt`. **Check each module’s `README.md` for installation and usage.**
-- Install dependencies before running examples.
-- Example `.env.example` files are provided where needed for API keys and settings.
+Run the UI:
+```bash
+streamlit run agent-ui.py
