@@ -1,21 +1,17 @@
-from datetime import date
-from json import tool
-from tavily import TavilyClient
 import json
 import time
+from datetime import date
 
-# Llama-Index imports
-from openai import OpenAI, AzureOpenAI
+# OpenAI SDK imports
+from openai import AzureOpenAI, OpenAI
+from tavily import TavilyClient
 
-from settings import settings
-from utils import get_tools_descriptions, parse_args, execute_agent, get_tokens
+from agent_contract import AgentResult, TokenUsage
 
 # Prompt components
-from prompts import role, goal, instructions, knowledge
-from prompts import openai_completion_after_tool_call_prompt
-
-# Load environment variables
+from prompts import goal, instructions, knowledge, openai_completion_after_tool_call_prompt, role
 from settings import settings
+from utils import execute_agent, get_tools_descriptions, parse_args
 
 # # Initialize Tavily client - Not needed, we can leverage TavilyTools directly
 # tavily_client = TavilyClient(api_key=settings.tavily_api_key.get_secret_value())
@@ -38,15 +34,26 @@ class Agent:
                 base_url=f"{settings.azure_endpoint}/deployments/{settings.azure_deployment_name}",
                 api_version=settings.azure_api_version,
                 api_key=settings.azure_api_key.get_secret_value(),
-            ) 
-            if provider == "azure" and settings.azure_api_key 
-            else 
+            )
+            if provider == "azure" and settings.azure_api_key
+            else
             OpenAI(
                 api_key=settings.openai_api_key.get_secret_value(),
-                id=settings.openai_model_name,
-            ) 
+            )
             if provider == "openai" and settings.openai_api_key
             else None
+        )
+        if self.model is None:
+            raise ValueError(
+                f"No credentials available for provider '{provider}'. "
+                "Set the corresponding API key in your .env file."
+            )
+
+        # Model/deployment name matching the configured client
+        self.model_name = (
+            settings.azure_deployment_name
+            if isinstance(self.model, AzureOpenAI)
+            else settings.openai_model_name
         )
 
         # Create tools
@@ -60,6 +67,14 @@ class Agent:
 
         self.verbose = verbose
         self.tokens = tokens
+
+        # Extras:
+        self.tools_descriptions = get_tools_descriptions(
+            [
+                (t["function"]["name"], t["function"]["description"])
+                for t in self.tools
+            ]
+        )
 
 
 
@@ -147,7 +162,7 @@ class Agent:
             "content": f"{role}\n{goal}\n{instructions}\n{knowledge}",
         }
 
-    def chat(self, message):
+    def chat(self, message: str) -> AgentResult:
         """
         Send a message and get a completion.
 
@@ -155,11 +170,10 @@ class Agent:
             message (str): User's input message
 
         Returns:
-            str: Assistant's response
+            AgentResult: The assistant's response, latency and token usage.
         """
+        start = time.perf_counter()
         try:
-
-            start = time.perf_counter()
             messages = [
                 self.prompt,
                 {"role": "user", "content": message}
@@ -167,21 +181,14 @@ class Agent:
 
             # Send prompt + user_message to the agent
             completion = self.agent.create(
-                model=(
-                    settings.azure_deployment_name if self.model == AzureOpenAI
-                    else settings.openai_model_name if self.model == OpenAI
-                    else None
-                ),
+                model=self.model_name,
+                temperature=settings.temperature,
                 messages=messages,
                 tools=self.tools
             )
 
-            tokens = {
-                "total_embedding_token_count": 0,
-                "prompt_llm_token_count": completion.usage.prompt_tokens,
-                "completion_llm_token_count": completion.usage.completion_tokens,
-                "total_llm_token_count": completion.usage.prompt_tokens + completion.usage.completion_tokens
-            }
+            prompt_tokens = completion.usage.prompt_tokens
+            completion_tokens = completion.usage.completion_tokens
 
             response_message = completion.choices[0].message
             tool_calls = response_message.tool_calls
@@ -198,15 +205,16 @@ class Agent:
                         print(f"Tool call name: {name}")
                         print(f"Tool call args: {args}")
 
-                    # Call the chosen tool
-                    chosen_tools = eval(f"self.{name}")
-                    tool_result = chosen_tools(**args)
-                    
+                    # Call the chosen tool through the explicit dispatch table
+                    tool_result = self.call_function(name, args)
+                    if tool_result is None:
+                        tool_result = f"Unknown tool: {name}"
+
                     # Append the tool result to the messages
                     messages.append({
                         "role": "tool",
                         "tool_call_id": tool_call.id,
-                        "content": tool_result  
+                        "content": tool_result
                     })
 
             # Append a prompt to the messages to get the final completion
@@ -219,43 +227,45 @@ class Agent:
 
             # Send the messages with the tool results back to the agent to get the final completion
             completion2 = self.agent.create(
-                model=(
-                    settings.azure_deployment_name if self.model == AzureOpenAI
-                    else settings.openai_model_name if self.model == OpenAI
-                    else None
-                ),
+                model=self.model_name,
+                temperature=settings.temperature,
                 messages=messages,
             )
 
-            end = time.perf_counter()
-            exec_time = end - start
-
+            exec_time = time.perf_counter() - start
 
             # Add the tokens from the second completion
-            tokens["prompt_llm_token_count"] += completion2.usage.prompt_tokens
-            tokens["completion_llm_token_count"] += completion2.usage.completion_tokens
-            tokens["total_llm_token_count"] += completion2.usage.prompt_tokens + completion2.usage.completion_tokens
+            prompt_tokens += completion2.usage.prompt_tokens
+            completion_tokens += completion2.usage.completion_tokens
 
-            return completion2.choices[0].message.content, exec_time, tokens
+            usage = TokenUsage(
+                input_tokens=prompt_tokens,
+                output_tokens=completion_tokens,
+                total_tokens=prompt_tokens + completion_tokens,
+                embedding_tokens=0,
+            )
+
+            return AgentResult(
+                content=completion2.choices[0].message.content,
+                elapsed_seconds=exec_time,
+                usage=usage,
+                tool_calls=len(tool_calls) if tool_calls else 0,
+            )
 
         except Exception as e:
-            print(f"Error in chat: {e}")
-            return "Sorry, I encountered an error processing your request."
+            return AgentResult.from_error(e, time.perf_counter() - start)
 
     def clear_chat(self):
         """
         Reset the conversation context.
 
+        This agent is stateless (each chat() call sends a fresh message list),
+        so there is no history to clear.
+
         Returns:
             bool: True if reset was successful
         """
-        try:
-            # Reset the agent's chat history
-            self.agent.memory.clear()
-            return True
-        except Exception as e:
-            print(f"Error in clearing memory: {e}")
-            return False
+        return True
 
 
 def main():

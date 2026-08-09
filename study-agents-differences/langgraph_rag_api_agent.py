@@ -1,34 +1,32 @@
-import os
 import time
 
 # LangGraph and LangChain imports
 from typing import Annotated, TypedDict
+
+from langchain.tools import tool
 from langchain.tools.retriever import create_retriever_tool
-from langchain_openai import AzureChatOpenAI, ChatOpenAI, OpenAIEmbeddings, AzureOpenAIEmbeddings
+from langchain_community.document_loaders import DirectoryLoader
+from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
+from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_community.document_loaders import DirectoryLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
-from langgraph.graph.message import add_messages
-from langgraph.checkpoint.memory import MemorySaver
-from langgraph.prebuilt import create_react_agent
-from langchain_openai import AzureChatOpenAI, ChatOpenAI
 from langchain_huggingface import ChatHuggingFace
-from langchain.tools import Tool, tool
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings, ChatOpenAI
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph.message import add_messages
+from langgraph.prebuilt import create_react_agent
 
-from utils import get_tools_descriptions, parse_args, execute_agent
+from agent_contract import AgentResult, TokenUsage
 
 # Prompt components
-from prompts import knowledge, role, goal, instructions
-
-# Tools
-from shared_functions import F1API, MetroAPI
+from prompts import goal, instructions, knowledge, role
 
 # Load environment variables
 from settings import settings
+
+# Tools
+from shared_functions import F1API, MetroAPI
+from utils import execute_agent, get_tools_descriptions, parse_args
 
 
 # LangGraph specific - Define the state for the graph
@@ -71,11 +69,13 @@ class LangGraphRAGandAPIAgent:
                 base_url=f"{settings.azure_endpoint}/deployments/{settings.azure_deployment_name}",
                 api_version=settings.azure_api_version,
                 api_key=settings.azure_api_key.get_secret_value(),
-            ) 
+                temperature=settings.temperature,
+            )
             if provider == "azure" and settings.azure_api_key
             else ChatOpenAI(
                 api_key=settings.openai_api_key.get_secret_value(),
-                id=settings.openai_model_name,
+                model=settings.openai_model_name,
+                temperature=settings.temperature,
             )
             if provider == "openai" and settings.openai_api_key
             else ChatHuggingFace(
@@ -115,6 +115,8 @@ class LangGraphRAGandAPIAgent:
         """
         Create a simple vectorstore using the in memory Chroma
         """
+        # Optional pre-splitting (improved retrieval in past experiments):
+        # from langchain.text_splitter import RecursiveCharacterTextSplitter
         # text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
         #     model_name=settings.embeddings_model_name,
         #     chunk_size=1024, chunk_overlap=50
@@ -207,7 +209,7 @@ class LangGraphRAGandAPIAgent:
         self.thread_id = new_thread_id
         return new_thread_id
 
-    def chat(self, message):
+    def chat(self, message: str) -> AgentResult:
         """
         Send a message and get a response.
 
@@ -215,46 +217,55 @@ class LangGraphRAGandAPIAgent:
             message (str): User's input message
 
         Returns:
-            str: Assistant's response
+            AgentResult: The assistant's response, latency and token usage.
         """
+        start = time.perf_counter()
         try:
             # Prepare input
             inputs = {"messages": [("user", message)]}
             config = {"configurable": {"thread_id": str(self.thread_id)}}
 
-
             # Stream the graph updates and collect the final response
             full_response = ""
-            start = time.perf_counter()
+            event = None
             for event in self.graph.stream(inputs, config=config, stream_mode="values"):
                 if event and "messages" in event:
                     last_message = event["messages"][-1]
                     if hasattr(last_message, "content"):
                         full_response = last_message.content
-            end = time.perf_counter()
-            exec_time = end - start
-            
-            if self.tokens:
-                tokens = {
-                    "total_embedding_token_count": 0,
-                    "prompt_llm_token_count": 0,
-                    "completion_llm_token_count": 0,
-                    "total_llm_token_count": 0,
-                }
-                for message in event["messages"]: # last event contains all messages
-                    if message.response_metadata:
-                        token_usage = message.response_metadata["token_usage"]
-                        tokens["prompt_llm_token_count"] += token_usage["prompt_tokens"]
-                        tokens["completion_llm_token_count"] += token_usage["completion_tokens"]
-                        tokens["total_llm_token_count"] += token_usage["total_tokens"]
-            else:
-                tokens = {}
+            exec_time = time.perf_counter() - start
 
-            return full_response, exec_time, tokens
+            usage = None
+            tool_calls = None
+            if event:
+                tool_calls = sum(
+                    len(getattr(msg, "tool_calls", None) or [])
+                    for msg in event["messages"]
+                )
+            if self.tokens and event:
+                prompt_tokens = completion_tokens = total_tokens = 0
+                for msg in event["messages"]:  # last event contains all messages
+                    if msg.response_metadata:
+                        token_usage = msg.response_metadata["token_usage"]
+                        prompt_tokens += token_usage["prompt_tokens"]
+                        completion_tokens += token_usage["completion_tokens"]
+                        total_tokens += token_usage["total_tokens"]
+                usage = TokenUsage(
+                    input_tokens=prompt_tokens,
+                    output_tokens=completion_tokens,
+                    total_tokens=total_tokens,
+                    embedding_tokens=0,
+                )
+
+            return AgentResult(
+                content=full_response,
+                elapsed_seconds=exec_time,
+                usage=usage,
+                tool_calls=tool_calls,
+            )
 
         except Exception as e:
-            print(f"Error in chat: {e}")
-            return "Sorry, I encountered an error processing your request."
+            return AgentResult.from_error(e, time.perf_counter() - start)
 
     def clear_chat(self):
         """
@@ -271,11 +282,15 @@ class LangGraphRAGandAPIAgent:
             return False
 
 
+# Alias so the UI / runner can discover this module's agent class generically
+Agent = LangGraphRAGandAPIAgent
+
+
 def main():
     """
     Example usage demonstrating the agent interface.
     """
-    
+
     args = parse_args()
 
     agent = LangGraphRAGandAPIAgent(

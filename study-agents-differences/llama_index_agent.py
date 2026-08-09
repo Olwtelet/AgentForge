@@ -1,28 +1,34 @@
-import tiktoken
-from datetime import date
-from tavily import TavilyClient
 import json
 import time
+from datetime import date
 
+import tiktoken
+from llama_index.core import PromptTemplate
+from llama_index.core.agent import ReActAgent
+from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
+from llama_index.core.memory import ChatMemoryBuffer
+from llama_index.core.tools import FunctionTool
+from llama_index.llms.azure_openai import AzureOpenAI
+from llama_index.llms.huggingface_api import HuggingFaceInferenceAPI
 
 # Llama-Index imports
 from llama_index.llms.openai import OpenAI
-from llama_index.llms.azure_openai import AzureOpenAI
-from llama_index.llms.huggingface_api import HuggingFaceInferenceAPI
-from llama_index.core.agent import ReActAgent, FunctionCallingAgent
-from llama_index.core.tools import FunctionTool
-from llama_index.core.memory import ChatMemoryBuffer
-from llama_index.core import PromptTemplate
-from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
+from tavily import TavilyClient
+
+from agent_contract import AgentResult, TokenUsage, count_tool_calls
 
 # Prompt components
-from prompts import role, goal, instructions, knowledge
-from prompts import llama_index_react_prompt # extra import
-
-from utils import get_tools_descriptions, parse_args, execute_agent
+from prompts import (
+    goal,
+    instructions,
+    knowledge,
+    llama_index_react_prompt,  # extra import
+    role,
+)
 
 # Load environment variables
 from settings import settings
+from utils import execute_agent, get_tools_descriptions, parse_args
 
 # Initialize Tavily client
 tavily_client = TavilyClient(api_key=settings.tavily_api_key.get_secret_value())
@@ -54,12 +60,14 @@ class Agent:
                 api_base=f"{settings.azure_endpoint}/deployments/{settings.azure_deployment_name}",
                 api_version=settings.azure_api_version,
                 api_key=settings.azure_api_key.get_secret_value(),
-                callback_manager=CallbackManager([token_counter]) if tokens else None
+                callback_manager=CallbackManager([token_counter]) if tokens else None,
+                temperature=settings.temperature,
             )
             if provider == "azure" and settings.azure_api_key
             else OpenAI(
                 api_key=settings.openai_api_key.get_secret_value(),
-                id=settings.openai_model_name,
+                model=settings.openai_model_name,
+                temperature=settings.temperature,
             )
             if provider == "openai" and settings.openai_api_key
             else HuggingFaceInferenceAPI(
@@ -146,7 +154,7 @@ class Agent:
         #     ).to_tool_list()
         
 
-    def chat(self, message):
+    def chat(self, message: str) -> AgentResult:
         """
         Send a message and get a response.
 
@@ -154,31 +162,33 @@ class Agent:
             message (str): User's input message
 
         Returns:
-            str: Assistant's response
+            AgentResult: The assistant's response, latency and token usage.
         """
+        start = time.perf_counter()
         try:
             # Send message to the agent
-            start = time.perf_counter()
             response = self.agent.chat(message)
-            end = time.perf_counter()
-            exec_time = end - start
+            exec_time = time.perf_counter() - start
 
+            usage = None
             if self.tokens:
-                tokens = {
-                    "total_embedding_token_count": token_counter.total_embedding_token_count,
-                    "prompt_llm_token_count": token_counter.prompt_llm_token_count,
-                    "completion_llm_token_count": token_counter.completion_llm_token_count,
-                    "total_llm_token_count": token_counter.total_llm_token_count
-                }
+                usage = TokenUsage(
+                    input_tokens=token_counter.prompt_llm_token_count,
+                    output_tokens=token_counter.completion_llm_token_count,
+                    total_tokens=token_counter.total_llm_token_count,
+                    embedding_tokens=token_counter.total_embedding_token_count,
+                )
                 token_counter.reset_counts()
-            else:
-                tokens = {}
 
-            return str(response), exec_time, tokens
+            return AgentResult(
+                content=str(response),
+                elapsed_seconds=exec_time,
+                usage=usage,
+                tool_calls=count_tool_calls(getattr(response, "sources", None)),
+            )
 
         except Exception as e:
-            print(f"Error in chat: {e}")
-            return "Sorry, I encountered an error processing your request."
+            return AgentResult.from_error(e, time.perf_counter() - start)
 
     def clear_chat(self):
         """

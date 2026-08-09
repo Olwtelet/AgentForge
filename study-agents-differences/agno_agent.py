@@ -1,25 +1,24 @@
-from datetime import date
-from tavily import TavilyClient
 import json
 import time
+from datetime import date
+
+from agno.agent import Agent as AgnoAgent
+from agno.memory import AgentMemory
+from agno.models.azure import AzureOpenAI
+from agno.models.huggingface import HuggingFace
 
 # Agno imports
 from agno.models.openai import OpenAIChat
-from agno.models.azure import AzureOpenAI
-from agno.agent import Agent as AgnoAgent
-from agno.memory import AgentMemory
 from agno.tools import tool
 from agno.tools.tavily import TavilyTools
-from agno.models.huggingface import HuggingFace
+from tavily import TavilyClient
 
-from settings import settings
-from utils import get_tools_descriptions, parse_args, execute_agent
+from agent_contract import AgentResult, TokenUsage, count_tool_calls
 
 # Prompt components
-from prompts import role, goal, instructions, knowledge
-
-# Load environment variables
+from prompts import goal, instructions, knowledge, role
 from settings import settings
+from utils import execute_agent, get_tools_descriptions, parse_args
 
 # # Initialize Tavily client - Not needed, we can leverage TavilyTools directly
 # tavily_client = TavilyClient(api_key=settings.tavily_api_key.get_secret_value())
@@ -43,13 +42,15 @@ class Agent:
                 base_url=f"{settings.azure_endpoint}/deployments/{settings.azure_deployment_name}",
                 api_version=settings.azure_api_version,
                 api_key=settings.azure_api_key.get_secret_value(),
-            ) 
-            if provider == "azure" and settings.azure_api_key 
-            else 
+                temperature=settings.temperature,
+            )
+            if provider == "azure" and settings.azure_api_key
+            else
             OpenAIChat(
                 api_key=settings.openai_api_key.get_secret_value(),
                 id=settings.openai_model_name,
-            ) 
+                temperature=settings.temperature,
+            )
             if provider == "openai" and settings.openai_api_key
             else HuggingFace(
                 model_name=settings.open_source_model_name,
@@ -131,7 +132,7 @@ class Agent:
             # NOTE: this won't show the print in the console, but it will return the tool call in the response
         ]
 
-    def chat(self, message):
+    def chat(self, message: str) -> AgentResult:
         """
         Send a message and get a response.
 
@@ -139,30 +140,32 @@ class Agent:
             message (str): User's input message
 
         Returns:
-            str: Assistant's response
+            AgentResult: The assistant's response, latency and token usage.
         """
+        start = time.perf_counter()
         try:
             # Send message to the agent
-            start = time.perf_counter()
             response = self.agent.run(message)
-            end = time.perf_counter()
-            exec_time = end - start
+            exec_time = time.perf_counter() - start
 
+            usage = None
             if self.tokens:
-                tokens = {
-                    "total_embedding_token_count": 0,
-                    "prompt_llm_token_count": sum(response.metrics["prompt_tokens"]),
-                    "completion_llm_token_count": sum(response.metrics["completion_tokens"]),
-                    "total_llm_token_count": sum(response.metrics["total_tokens"]),
-                }
-            else:
-                tokens = {}
+                usage = TokenUsage(
+                    input_tokens=sum(response.metrics["prompt_tokens"]),
+                    output_tokens=sum(response.metrics["completion_tokens"]),
+                    total_tokens=sum(response.metrics["total_tokens"]),
+                    embedding_tokens=0,
+                )
 
-            return response.content, exec_time, tokens
+            return AgentResult(
+                content=response.content,
+                elapsed_seconds=exec_time,
+                usage=usage,
+                tool_calls=count_tool_calls(getattr(response, "tools", None)),
+            )
 
         except Exception as e:
-            print(f"Error in chat: {e}")
-            return "Sorry, I encountered an error processing your request."
+            return AgentResult.from_error(e, time.perf_counter() - start)
 
     def clear_chat(self):
         """

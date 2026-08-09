@@ -1,7 +1,8 @@
-import streamlit as st
 import importlib
-from utils import get_available_agents
 
+import streamlit as st
+
+from utils import get_available_agents
 
 # --------------------------------------
 #           Streamlit UI
@@ -38,7 +39,7 @@ with st.sidebar:
     # get available agents
     available_agents = get_available_agents()
 
-    # Select agent 
+    # Select agent
     selected_agent = st.sidebar.selectbox(
         "Select Agent",
         options=list(available_agents.keys()),
@@ -48,14 +49,15 @@ with st.sidebar:
 
     # Dynamic import of selected agent
     if selected_agent not in st.session_state:
-        try: 
+        try:
             module = importlib.import_module(selected_agent)
             st.session_state[selected_agent] = {
                 "agent": module.Agent(),
                 "messages": []
             }
         except Exception as e:
-            st.error(f"Error loading agent: {str(e)}")
+            st.error(f"Error loading agent: {e}")
+            st.stop()
 
     current_agent = st.session_state[selected_agent]["agent"]
     current_chat_history = st.session_state[selected_agent]["messages"]
@@ -67,8 +69,8 @@ with st.sidebar:
     # Clear chat history
     if st.button(f"🗑️ Clear {current_agent.name}'s Chat History"):
         current_agent.clear_chat()
-        current_chat_history = []
-
+        st.session_state[selected_agent]["messages"] = []
+        st.rerun()
 
 
 # ------------------------
@@ -87,7 +89,10 @@ st.caption(f"Chatting with :blue[{current_agent.name}] \
 # Display chat history
 for msg in current_chat_history:
     with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
+        if msg.get("is_error"):
+            st.error(msg["content"])
+        else:
+            st.markdown(msg["content"])
 
 # User input
 if user_input := st.chat_input("Type your message here..."):
@@ -98,16 +103,23 @@ if user_input := st.chat_input("Type your message here..."):
 
     # Get response from agent
     with st.chat_message("assistant"):
+        # Every agent returns an AgentResult, both on success and on failure.
+        result = current_agent.chat(user_input)
 
-        try:
-            response = current_agent.chat(user_input)
-        except Exception as e:
-            response = f"Error: {e}"
-
-        # Display the response
-        st.markdown(response)
-
-        # Add the message to the chat history
-        st.session_state[selected_agent]["messages"].append(
-            {"role": "assistant", "content": response}
-        )
+        if result.error:
+            st.error(result.error)
+            st.session_state[selected_agent]["messages"].append(
+                {"role": "assistant", "content": result.error, "is_error": True}
+            )
+        else:
+            st.markdown(result.content)
+            if result.usage and result.usage.total_tokens:
+                st.caption(
+                    f"⏱️ {result.elapsed_seconds:.2f}s · "
+                    f"🔢 {result.usage.total_tokens} tokens"
+                )
+            else:
+                st.caption(f"⏱️ {result.elapsed_seconds:.2f}s")
+            st.session_state[selected_agent]["messages"].append(
+                {"role": "assistant", "content": result.content}
+            )

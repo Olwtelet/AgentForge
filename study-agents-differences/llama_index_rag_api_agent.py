@@ -1,37 +1,27 @@
-import tiktoken
 import time
+
+import tiktoken
+from llama_index.core import Document, SimpleDirectoryReader, VectorStoreIndex
+from llama_index.core.agent import ReActAgent
+from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
+from llama_index.core.memory import ChatMemoryBuffer
+from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core.tools import FunctionTool, RetrieverTool
+from llama_index.embeddings.openai import OpenAIEmbedding
+from llama_index.llms.azure_openai import AzureOpenAI
+from llama_index.llms.huggingface_api import HuggingFaceInferenceAPI
 
 # Llama-Index imports
 from llama_index.llms.openai import OpenAI
-from llama_index.llms.azure_openai import AzureOpenAI
-from llama_index.llms.huggingface_api import HuggingFaceInferenceAPI
-from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
-from llama_index.core.node_parser import SentenceSplitter
-from llama_index.core import Document
-from llama_index.core.agent import ReActAgent
-from llama_index.core.tools import FunctionTool
-from llama_index.core.memory import ChatMemoryBuffer
-from llama_index.core import PromptTemplate
-from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
-from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.core.tools import FunctionTool, RetrieverTool
-from llama_index.llms.azure_openai import AzureOpenAI
-from llama_index.core.agent import ReActAgent
-from llama_index.core.tools import FunctionTool
-from llama_index.core.memory import ChatMemoryBuffer
-from llama_index.core import PromptTemplate
 
-# Prompt components
-from prompts import role, goal, instructions, knowledge
-from prompts import llama_index_react_prompt # extra import
-
-from utils import get_tools_descriptions, parse_args, execute_agent
-
-# Tools
-from shared_functions import F1API, MetroAPI
+from agent_contract import AgentResult, TokenUsage, count_tool_calls
 
 # Load environment variables
 from settings import settings
+
+# Tools
+from shared_functions import F1API, MetroAPI
+from utils import execute_agent, get_tools_descriptions, parse_args
 
 token_counter = TokenCountingHandler(
     tokenizer=tiktoken.encoding_for_model("gpt-4").encode
@@ -58,12 +48,14 @@ class LlamaIndexRAGandAPIAgent:
                 api_base=f"{settings.azure_endpoint}/deployments/{settings.azure_deployment_name}",
                 api_version=settings.azure_api_version,
                 api_key=settings.azure_api_key.get_secret_value(),
-                callback_manager=CallbackManager([token_counter]) if tokens else None
+                callback_manager=CallbackManager([token_counter]) if tokens else None,
+                temperature=settings.temperature,
             )
             if provider == "azure" and settings.azure_api_key
             else OpenAI(
                 api_key=settings.openai_api_key.get_secret_value(),
-                id=settings.openai_model_name,
+                model=settings.openai_model_name,
+                temperature=settings.temperature,
             )
             if provider == "openai" and settings.openai_api_key
             else HuggingFaceInferenceAPI(
@@ -129,7 +121,7 @@ class LlamaIndexRAGandAPIAgent:
             embed_model= (
                 OpenAIEmbedding(
                     api_key=settings.openai_api_key.get_secret_value(),
-                    id=settings.embeddings_model_name,
+                    model=settings.embeddings_model_name,
                 )
                 if settings.openai_api_key
                 else f"local:{settings.local_embeddings_model_name}"
@@ -179,7 +171,7 @@ class LlamaIndexRAGandAPIAgent:
         ]
         
 
-    def chat(self, message):
+    def chat(self, message: str) -> AgentResult:
         """
         Send a message and get a response.
 
@@ -187,31 +179,33 @@ class LlamaIndexRAGandAPIAgent:
             message (str): User's input message
 
         Returns:
-            str: Assistant's response
+            AgentResult: The assistant's response, latency and token usage.
         """
+        start = time.perf_counter()
         try:
             # Send message to the agent
-            start = time.perf_counter()
             response = self.agent.chat(message)
-            end = time.perf_counter()
-            exec_time = end - start
+            exec_time = time.perf_counter() - start
 
+            usage = None
             if self.tokens:
-                tokens = {
-                    "total_embedding_token_count": token_counter.total_embedding_token_count,
-                    "prompt_llm_token_count": token_counter.prompt_llm_token_count,
-                    "completion_llm_token_count": token_counter.completion_llm_token_count,
-                    "total_llm_token_count": token_counter.total_llm_token_count
-                }
+                usage = TokenUsage(
+                    input_tokens=token_counter.prompt_llm_token_count,
+                    output_tokens=token_counter.completion_llm_token_count,
+                    total_tokens=token_counter.total_llm_token_count,
+                    embedding_tokens=token_counter.total_embedding_token_count,
+                )
                 token_counter.reset_counts()
-            else:
-                tokens = {}
 
-            return str(response), exec_time, tokens
+            return AgentResult(
+                content=str(response),
+                elapsed_seconds=exec_time,
+                usage=usage,
+                tool_calls=count_tool_calls(getattr(response, "sources", None)),
+            )
 
         except Exception as e:
-            print(f"Error in chat: {e}")
-            return "Sorry, I encountered an error processing your request."
+            return AgentResult.from_error(e, time.perf_counter() - start)
 
     def clear_chat(self):
         """
@@ -227,6 +221,10 @@ class LlamaIndexRAGandAPIAgent:
         except Exception as e:
             print(f"Error clearing chat: {e}")
             return False
+
+
+# Alias so the UI / runner can discover this module's agent class generically
+Agent = LlamaIndexRAGandAPIAgent
 
 
 def main():
