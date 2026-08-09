@@ -1,24 +1,53 @@
 # LangGraph Examples
 
-## How to setup
+- Repo: https://github.com/langchain-ai/langgraph
+- Documentation: https://langchain-ai.github.io/langgraph/
 
-### Virtual environment
+LangGraph models agents as explicit state graphs: nodes are steps, edges are
+transitions, and a checkpointer persists state so runs can be interrupted,
+resumed and inspected.
 
-Create a simple virtual environment with:
+## Setup
 
-`python3 -m venv .venv`
+```bash
+uv sync
+```
 
-And install the requirements with:
+```bash
+cp .env.example .env
+```
 
-`pip install -r requirements.txt`
+Fill in your OpenAI endpoint and key.
 
-### .env
+<details>
+<summary>Without <code>uv</code></summary>
 
-See .env.example and create a .env (on the root of the repository).
-You need to get an open AI endpoint and key and fill them in.
+A `requirements.txt` is also provided for this module:
+
+```bash
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+</details>
 
 ### Jupyter
 
-Make sure you select the correct kernel when running the notebooks.
+Make sure you select the environment created above as the notebook kernel. All
+required packages are installed there.
 
-**Note**: All the necessary packages should already be installed in the virtual environment.
+## Examples
+
+| File | Concept |
+| --- | --- |
+| [`customer-support.ipynb`](customer-support.ipynb) | A customer-support bot built up in four parts: tools, state, interrupts (human-in-the-loop) and specialised sub-graphs |
+
+Diagrams for each part are in [`img/`](img/).
+
+## Related LangGraph code in this repository
+
+| What | Where |
+| --- | --- |
+| Hello World / tools / memory agent | [`../../study-agents-differences/langgraph_agent.py`](../../study-agents-differences/langgraph_agent.py) |
+| RAG + API tools agent | [`../../study-agents-differences/langgraph_rag_api_agent.py`](../../study-agents-differences/langgraph_rag_api_agent.py) |
+| Full RAG application | [`../langgraph-project/`](../langgraph-project/) |

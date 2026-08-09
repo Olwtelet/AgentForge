@@ -21,11 +21,11 @@ Copy the example file and fill in your keys:
 cp .env.example .env
 ```
 
-Edit `.env`:
+Edit `.env` — the variables are listed in [`.env.example`](.env.example):
 
 ```
 GOOGLE_API_KEY=your-google-api-key
-GOOGLE_MODEL_NAME=gemini-2.0-flash-lite
+GOOGLE_MODEL_NAME=gemini-2.5-flash
 
 # Required only for 09_litellm.py
 OPENAI_API_KEY=your-openai-api-key
@@ -64,6 +64,24 @@ uv run python 00_hello_world.py
 | `12_grounding.py` | Grounding | Ground responses in Google Search results with source citations |
 | `13_safety.py` | Safety Guardrails | Block unsafe inputs and redact PII from outputs via callbacks |
 | `14_evaluation.py` | Evaluation | Score agent behavior against expected tool trajectories and responses |
+
+## Capabilities
+
+What this directory demonstrates — not the limit of what ADK can do.
+
+| Capability | Example |
+| --- | --- |
+| Hello World | [`00_hello_world.py`](00_hello_world.py) |
+| Tools | [`01_tools.py`](01_tools.py), [`02_built_in_tools.py`](02_built_in_tools.py) |
+| Structured Output | [`08_structured_outputs.py`](08_structured_outputs.py) |
+| Memory | [`07_memory.py`](07_memory.py) |
+| Multi-Agent | [`03_agents_as_tools.py`](03_agents_as_tools.py), [`04_multi_agent_systems.py`](04_multi_agent_systems.py), [`05_workflow_agents.py`](05_workflow_agents.py) |
+| MCP | [`11_mcp_tools.py`](11_mcp_tools.py) |
+| Evaluation | [`14_evaluation.py`](14_evaluation.py) |
+| RAG | Grounding via Google Search in [`12_grounding.py`](12_grounding.py); no local vector-store example |
+| Streaming | Not implemented |
+| Human-in-the-Loop | Not implemented |
+| Tracing | Not implemented — [`06_callbacks.py`](06_callbacks.py) intercepts the lifecycle, which is not the same thing |
 
 ## Key dependencies
 

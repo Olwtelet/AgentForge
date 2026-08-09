@@ -36,8 +36,11 @@ uv run <example_name>.py
 
 #### .env
 
-See .env.example and create a .env (on the root of the repository).
-You need to get an OpenAI endpoint and key and fill them in.
+```bash
+cp .env.example .env
+```
+
+Fill in `OPENAI_API_KEY` (and, for the RAG examples, `OPENAI_EMBEDDINGS_MODEL`).
 
 ### Example Progression
 
@@ -76,6 +79,24 @@ You need to get an OpenAI endpoint and key and fill them in.
 - `10_retry_steps_execution.py` - Retry policies for transient failures
 - `11_workflow_as_a_server.py` - Exposing workflows via HTTP API
 - `12_observability.py` - OpenTelemetry tracing and observability tools
+
+### Capabilities
+
+What this directory demonstrates — not the limit of what LlamaIndex can do.
+
+| Capability | Example |
+| --- | --- |
+| Hello World | [`00_hello_world.py`](00_hello_world.py) |
+| Tools | [`01_tools.py`](01_tools.py) |
+| Structured Output | [`02_structured_outputs.py`](02_structured_outputs.py) |
+| Streaming | [`04_streaming.py`](04_streaming.py), [`agent_workflows/04_streaming.py`](agent_workflows/04_streaming.py) |
+| Memory | [`03_memory.py`](03_memory.py), [`05_memory_advanced.py`](05_memory_advanced.py) |
+| Human-in-the-Loop | [`agent_workflows/06_human_in_the_loop.py`](agent_workflows/06_human_in_the_loop.py) |
+| Multi-Agent | [`09_agent_delegation.py`](09_agent_delegation.py) |
+| RAG | [`10_agentic_rag.py`](10_agentic_rag.py), [`00_hello_world.py`](00_hello_world.py) |
+| MCP | [`mcp/`](mcp/) |
+| Tracing | [`agent_workflows/12_observability.py`](agent_workflows/12_observability.py) |
+| Evaluation | Not implemented |
 
 ### Key LlamaIndex Differentiators
 
