@@ -160,7 +160,7 @@ research_result = research_agent.run_sync("Tell me about AI")
 print(f"🔍 Research Result: {research_result.output}")
 
 # Inspect the complete message history
-print(f"\n📋 Message History Analysis:")
+print("\n📋 Message History Analysis:")
 messages = research_result.all_messages()
 
 print_all_messages(messages)  # from utils.py

@@ -17,7 +17,7 @@ def print_all_messages(messages: list[ModelMessage]) -> None:
                     print(f"      Part {j+1}: {part_type}")
 
 def show_metrics(usage: RunUsage) -> None:
-    print(f"\n📈 Final Metrics:")
+    print("\n📈 Final Metrics:")
     print(f"   - Total requests: {usage.requests}")
     print(f"   - Tool calls executed: {usage.tool_calls}")
     print(f"   - Input tokens used: {usage.input_tokens}")

@@ -7,7 +7,6 @@ from langchain_core.messages import ToolMessage
 from langchain_core.runnables import RunnableLambda
 from langgraph.prebuilt import ToolNode
 from langgraph_project.state import AgentState
-from langchain_core.messages import ToolMessage
 
 
 def create_entry_node(assistant_name: str, new_dialog_state: str) -> Callable:

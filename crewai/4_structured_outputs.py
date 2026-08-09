@@ -21,7 +21,6 @@ https://docs.crewai.com/en/concepts/llms#structured-llm-calls
 -------------------------------------------------------
 """
 
-from crewai import LLM
 
 # --- 1. Define a Pydantic model for structured output ---
 class Dog(BaseModel):

@@ -79,7 +79,7 @@ def input_safety_guardrail(
                 )
             )
 
-    print(f"  [Input Guardrail] PASS — no prohibited patterns found")
+    print("  [Input Guardrail] PASS — no prohibited patterns found")
     return None  # Allow the request to proceed
 
 

@@ -55,7 +55,6 @@ async def main()  -> None:
     
     # Get tool schema
     # The schema is provided to the model during AssistantAgent's on_messages call.
-    web_search_function_tool.schema
     print("Tool Schema: ", web_search_function_tool.schema)
 
 if __name__ == "__main__":

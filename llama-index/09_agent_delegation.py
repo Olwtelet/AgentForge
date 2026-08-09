@@ -62,7 +62,7 @@ async def call_write_agent(ctx: Context) -> str:
         if not notes:
             return "No research notes to write from."
 
-        user_msg = f"Write a markdown report from the following notes. Be sure to output the report in the following format: <report>...</report>:\n\n"
+        user_msg = "Write a markdown report from the following notes. Be sure to output the report in the following format: <report>...</report>:\n\n"
 
         # Add the research notes to the user message
         notes = "\n\n".join(notes)

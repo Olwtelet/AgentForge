@@ -131,7 +131,7 @@ if __name__ == "__main__":
         # because they have the id of the previous agent
     )
     
-    print(f"\n=== New History after Context-Aware Processing ===")
+    print("\n=== New History after Context-Aware Processing ===")
     filtered_messages = result4.all_messages()
     print_all_messages(filtered_messages)
     # > This should filter all the ModelResponse messages from the history

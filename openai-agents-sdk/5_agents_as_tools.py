@@ -69,8 +69,8 @@ orchestrator_agent = Agent(
 synthesizer_agent = Agent(
     name="synthesizer_agent",
     instructions=(
-        f"You inspect translations, correct them if needed, and "
-        f"produce a final concatenated response.",
+        "You inspect translations, correct them if needed, and "
+        "produce a final concatenated response.",
     ),
     model=settings.OPENAI_MODEL_NAME,  
 )

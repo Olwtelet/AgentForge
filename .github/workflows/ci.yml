@@ -1,0 +1,129 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # No real credentials are ever used in CI. Unit tests must pass without them.
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      # Pinned so a new ruff release cannot break CI without an explicit bump.
+      # Rules are configured in ruff.toml at the repository root.
+      - name: Ruff check
+        run: uvx ruff@0.16.1 check .
+
+      # `ruff format` is intentionally NOT enforced repo-wide: the framework
+      # examples are pinned teaching material and reformatting them all would
+      # bury real changes in whitespace churn. See CONTRIBUTING.md.
+      - name: Ruff format (report only)
+        run: uvx ruff@0.16.1 format --check --diff . || true
+
+  syntax:
+    name: Compile all examples
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Byte-compile every Python file
+        # Catches syntax errors in every framework example without installing
+        # any framework dependency.
+        run: python -m compileall -q .
+
+  test:
+    name: Unit tests (no credentials)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: study-agents-differences
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install test-only dependencies
+        # The full framework matrix is heavy and is not needed for unit tests:
+        # they mock every network call and never construct a real agent.
+        run: uv pip install --system pytest pydantic pydantic-settings httpx python-dotenv
+
+      - name: Run unit tests
+        # `-m "not integration"` is the default in pyproject.toml; stated here
+        # so the intent is visible in the workflow itself.
+        run: python -m pytest -m "not integration" -q
+
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  integration:
+    name: Integration tests (manual)
+    # Never runs automatically: these tests call external APIs and spend tokens.
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: study-agents-differences
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Check credentials are configured
+        id: creds
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No OPENAI_API_KEY secret configured; skipping."
+          else
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install dependencies
+        if: steps.creds.outputs.available == 'true'
+        run: uv sync
+
+      - name: Run integration tests
+        if: steps.creds.outputs.available == 'true'
+        env:
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          tavily_api_key: ${{ secrets.TAVILY_API_KEY }}
+        run: uv run pytest -m integration -q

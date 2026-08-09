@@ -106,7 +106,6 @@ class UncachedResourceWorkflow(Workflow):
 # --- 4. Config-backed resources (ResourceConfig) ---
 
 from pydantic import BaseModel
-from workflows.resource import ResourceConfig
 
 class ClassifierConfig(BaseModel):
     categories: list[str]

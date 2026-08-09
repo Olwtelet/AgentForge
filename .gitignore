@@ -1,15 +1,46 @@
 # Environments
 .env
-.venv
+.env.*
+!.env.example
+.venv/
+venv/
+env/
 
-# Python caches
+# Python caches / build artifacts
 __pycache__/
+*.py[cod]
+*.egg-info/
 .cache
+build/
+dist/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pdm-python
+
+# Vector stores / local databases
+*.sqlite
+*.sqlite3
+chroma/
+.chroma/
+storage/
+
+# Benchmark output (results are reproduced locally, not committed)
+study-agents-differences/benchmarks/results/*.jsonl
+study-agents-differences/benchmarks/results/*.md
+!study-agents-differences/benchmarks/results/legacy-runs/
+!study-agents-differences/benchmarks/results/legacy-runs/**
 
 # Others
 .chainlit/
 tmp
-*.sqlite
 
-# VSCode
+# Editors
 .vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

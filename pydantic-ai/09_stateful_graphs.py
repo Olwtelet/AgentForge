@@ -136,7 +136,7 @@ async def main():
     
     print("\n" + "=" * 60)
     print(f"🎉 Result: {result.output}")
-    print(f"📊 Final state:")
+    print("📊 Final state:")
     print(f"   Balance: ${state.user_balance:.2f}")
     print(f"   Product: {state.product}")
     

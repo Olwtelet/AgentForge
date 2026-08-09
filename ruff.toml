@@ -1,0 +1,66 @@
+# Repository-wide lint configuration.
+#
+# AgentForge is a monorepo of independent, pinned framework examples. Linting is
+# deliberately narrow: rules that catch real defects (undefined names, unused
+# imports, likely bugs, insecure calls) rather than stylistic churn across
+# hundreds of teaching examples written against different library versions.
+#
+# Style-only rules (import sorting, pyupgrade) are enabled for the shared,
+# actively maintained code under study-agents-differences/ only — see
+# [lint.per-file-ignores] below.
+
+line-length = 100
+target-version = "py312"
+
+exclude = [
+    ".venv",
+    "__pycache__",
+    "*.ipynb",
+    "**/uv.lock",
+    "**/pdm.lock",
+]
+
+[lint]
+select = [
+    "F",    # pyflakes: undefined names, unused imports/variables
+    "E9",   # syntax / IO errors
+    "B",    # flake8-bugbear: likely bugs
+    "I",    # import sorting
+    "S105", # hardcoded password string
+    "S106", # hardcoded password function argument
+    "S501", # request with verify=False
+]
+
+ignore = [
+    "B008",  # function call in default argument — pervasive in agent framework APIs
+]
+
+[lint.isort]
+# study-agents-differences/ runs scripts from its own directory, so these
+# top-level modules are first-party even though they are not an installed package.
+known-first-party = [
+    "agent_contract",
+    "benchmarks",
+    "prompts",
+    "settings",
+    "shared_functions",
+    "utils",
+]
+
+[lint.per-file-ignores]
+# Framework examples are teaching material pinned to specific library versions.
+# Import order and "unused" imports are often intentional (showing a reader every
+# symbol involved), so only real-bug rules are enforced there.
+"ag2/**" = ["I001", "F401"]
+"agno/**" = ["I001", "F401"]
+"autogen/**" = ["I001", "F401"]
+"crewai/**" = ["I001", "F401"]
+"google-adk/**" = ["I001", "F401"]
+"langgraph/**" = ["I001", "F401"]
+"llama-index/**" = ["I001", "F401"]
+"openai-agents-sdk/**" = ["I001", "F401"]
+"pydantic-ai/**" = ["I001", "F401"]
+"smolagents/**" = ["I001", "F401"]
+
+[format]
+quote-style = "preserve"

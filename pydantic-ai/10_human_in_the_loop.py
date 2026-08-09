@@ -99,14 +99,14 @@ async def main():
             if args.get("filename") in PROTECTED_FILES:
                 # Deny reading sensitive files
                 print(f"❌ Denied: read_file('{args.get('filename')}')")
-                print(f"   Reason: Cannot read sensitive configuration")
+                print("   Reason: Cannot read sensitive configuration")
                 
             # Approve all Reads for next run
             results.approvals[call.tool_call_id] = ToolApproved()  
             # OR results.approvals[call.tool_call_id] = True
                 
         elif call.tool_name == "delete_file":
-            print(f"❌ Deleting files is not allowed")
+            print("❌ Deleting files is not allowed")
             
             # Keep denying deletions
             results.approvals[call.tool_call_id] = ToolDenied(

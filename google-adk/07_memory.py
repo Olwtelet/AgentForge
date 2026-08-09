@@ -58,7 +58,7 @@ async def run_session(
     label: str,
 ) -> None:
     """Run a single agent session and return the completed session."""
-    session = await session_service.create_session(
+    await session_service.create_session(
         app_name=APP_NAME,
         user_id=USER_ID,
         session_id=session_id,
@@ -89,7 +89,7 @@ async def run_session(
     )
     if completed_session:
         await memory_service.add_session_to_memory(completed_session)
-        print(f"  (Session ingested into memory)")
+        print("  (Session ingested into memory)")
 
 
 async def main() -> None:
