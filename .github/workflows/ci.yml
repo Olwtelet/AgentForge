@@ -67,15 +67,21 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Install test-only dependencies
-        # The full framework matrix is heavy and is not needed for unit tests:
-        # they mock every network call and never construct a real agent.
-        run: uv pip install --system pytest pydantic pydantic-settings httpx python-dotenv
-
       - name: Run unit tests
+        # `--no-project` is load-bearing: without it `uv run` would sync the
+        # whole framework matrix from pyproject.toml. Unit tests mock every
+        # network call and never construct a real agent, so they only need
+        # these five packages, installed into an ephemeral environment.
         # `-m "not integration"` is the default in pyproject.toml; stated here
         # so the intent is visible in the workflow itself.
-        run: python -m pytest -m "not integration" -q
+        run: >
+          uv run --no-project --python 3.12
+          --with pytest
+          --with pydantic
+          --with pydantic-settings
+          --with httpx
+          --with python-dotenv
+          python -m pytest -m "not integration" -q
 
   secret-scan:
     name: Secret scan
