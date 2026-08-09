@@ -1,5 +1,6 @@
 import inspect
 
+
 class BaseModule:
 
     @classmethod
@@ -14,5 +15,5 @@ class BaseModule:
         return [
             (name, inspect.getdoc(obj) or "No description available.")
             for name, obj in inspect.getmembers(cls, inspect.isfunction)
-            if name != "list_functions"
+            if name != "list_functions" and not name.startswith("_")
         ]
