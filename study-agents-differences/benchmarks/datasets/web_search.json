@@ -1,0 +1,18 @@
+{
+  "name": "web_search",
+  "description": "Prompts that require the shared web-search tool. Identical for every framework.",
+  "prompts": [
+    {
+      "id": "ucl_2024_explicit",
+      "prompt": "Search the web for who won the Champions League final in 2024?"
+    },
+    {
+      "id": "ucl_2024_implicit",
+      "prompt": "Who won the Champions League final in 2024?"
+    },
+    {
+      "id": "current_date",
+      "prompt": "What is today's date?"
+    }
+  ]
+}

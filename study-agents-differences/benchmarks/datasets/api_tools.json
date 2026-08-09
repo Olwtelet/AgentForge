@@ -1,0 +1,14 @@
+{
+  "name": "api_tools",
+  "description": "Prompts requiring the shared F1 / Metro API tools in shared_functions/. Identical for every framework.",
+  "prompts": [
+    {
+      "id": "metro_and_f1",
+      "prompt": "Tell me the waiting time at the CG station and the status of the red line, and also give me information about Formula 1 driver number 44!"
+    },
+    {
+      "id": "f1_driver_only",
+      "prompt": "Give me information about Formula 1 driver number 44."
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "rag",
+  "description": "Questions answerable only from knowledge_base/cl_matches/. Identical for every framework.",
+  "prompts": [
+    {
+      "id": "possession_benfica",
+      "prompt": "What was the ball possession in Benfica's game?"
+    },
+    {
+      "id": "benfica_score",
+      "prompt": "What was the score of Benfica's UCL match?"
+    }
+  ]
+}
